@@ -43,11 +43,12 @@ passport.use( new Auth0Strategy({   //<-- building a new instance of the strateg
     const db = app.get( 'db' )
     let userData = profile._json, // <-- this is the json object coming from the profile parameter from above that we get back when we login w/ auth to our app.
         auth_id = userData.user_id.split('|')[1]
+        console.log(userData);
     /*
-        1: user_name? user.name    we are trying to fill these properties with what we are pulling off of our user obj that we are pulling off the json object from google or whatever they are logging in with
-        2: email? user.email
-        3: img? user.picture
-        4: auth_id? user.user_id.split('|')[1]
+        1: user_name? userData.name    we are trying to fill these properties with what we are pulling off of our user obj that we are pulling off the json object from google or whatever they are logging in with
+        2: email? userData.email
+        3: img? userData.picture
+        4: auth_id? userData.user_id.split('|')[1]
     */ 
     db.find_user( [auth_id] ).then( user => {  //<-- this is where the placeholder in the find_user.sql file is filled.
         if ( user[0] ) {
@@ -69,7 +70,7 @@ app.get( '/auth/callback', passport.authenticate( 'auth0', {
 }))
 
 passport.serializeUser( function( ID, done ){   //
-    return done( null, ID ) // usually save user id from DB to session
+    return done( null, ID ) // usually save user id from DB to session... serialize puts user id to session
 })
 
 passport.deserializeUser( function( ID, done ) {
@@ -84,11 +85,12 @@ passport.deserializeUser( function( ID, done ) {
 })
 
 app.get( '/auth/me', function( req, res, next ) {
-    if ( !req.user ) {
-        res.status( 401 ).send( 'LOG IN REQUIRED' )
-    } else {
-        res.status( 200 ).send( req.user )
-    }
+    let response = req.user,
+    status = 200
+
+    !response && ( response = "LOGIN REQUIRED", status = 403) 
+
+    res.status( status ).send( response )
 })
 
 app.get( '/auth/logout', function( req, res, next ) {
