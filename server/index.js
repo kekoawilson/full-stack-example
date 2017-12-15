@@ -75,7 +75,7 @@ passport.serializeUser( function( ID, done ){   //
 
 passport.deserializeUser( function( ID, done ) {
     // user === 1
-    // const db = app.get( 'db' )
+    const db = app.get( 'db' )
     db.find_user_by_session( [ID] )  //<--- making call to database in postgres to get info using query file
     .then( user => {
         done( null, user[0] )
