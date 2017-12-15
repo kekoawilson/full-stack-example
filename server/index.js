@@ -26,7 +26,7 @@ app.use( session({
         maxAge: 50000
     }
 }))
-//app.use( express.static(__dirname+ '/../build'))
+app.use( express.static(__dirname+ '/../build'))
 app.use( passport.initialize() )
 app.use( passport.session() )
 
@@ -54,19 +54,19 @@ passport.use( new Auth0Strategy({   //<-- building a new instance of the strateg
         if ( user[0] ) {
             return done( null, user[0].id )
         } else {
-            db.create_user([userData.name, userData.email, userData.picture, auth_id])
+            db.create_user( [userData.name, userData.email, userData.picture, auth_id] )
             .then( user => {
                 return done( null, user[0].id)
-            })
+            } )
         }
-    })
-} ))
+    } )
+} ) )
 
 //Endpoints
 app.get( '/auth', passport.authenticate( 'auth0' )) //takes you to auth0 and google, sends back data in the profile param in the strategy. then invoke done, serialize gets hit.
 app.get( '/auth/callback', passport.authenticate( 'auth0', {
-    successRedirect: 'http://localhost:3000/#/private',
-    failureRedirect: 'http://localhost:3000/#/'
+    successRedirect: process.env.AUTH_PRIVATE_REDIRECT,
+    failureRedirect: process.env.AUTH_LANDING_REDIRECT
 }))
 
 passport.serializeUser( function( ID, done ){   //
@@ -75,14 +75,14 @@ passport.serializeUser( function( ID, done ){   //
 
 passport.deserializeUser( function( ID, done ) {
     // user === 1
-    const db = app.get( 'db' )
-    db.find_user_by_session( [ID] )
+    // const db = app.get( 'db' )
+    db.find_user_by_session( [ID] )  //<--- making call to database in postgres to get info using query file
     .then( user => {
         done( null, user[0] )
-    })
+    } )
    //make query call to find the user that matches req.user
     
-})
+} )
 
 app.get( '/auth/me', function( req, res, next ) {
     let response = req.user,
@@ -95,7 +95,7 @@ app.get( '/auth/me', function( req, res, next ) {
 
 app.get( '/auth/logout', function( req, res, next ) {
     req.logout()
-    res.redirect('http://localhost:3000/#/')
+    res.redirect( process.env.AUTH_LANDING_REDIRECT )
 })
 
 
