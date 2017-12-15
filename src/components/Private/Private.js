@@ -21,7 +21,7 @@ class Private extends Component {
                     <p>Email: {this.props.user.email}</p>
                     <p>ID: {this.props.user.auth_id}</p>
                     <h4>Available balance: {'$' + Math.floor((Math.random() + 1) * 100) + '.00'} </h4>
-                    <a href={ process.env.AUTH_LANDING_REDIRECT }><button>Log out</button></a>
+                    <a href={ process.env.REACT_APP_LOGOUT }><button>Log out</button></a>
                 </div>
             :
                 <div className='info-container'>
